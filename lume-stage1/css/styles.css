@@ -1,0 +1,58 @@
+/* LUMÉ Beauty — Stage 1: Base Styles */
+
+/* All elements use border-box sizing */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Georgia, serif;
+  background: #fdf8f2;
+  color: #2a1a10;
+}
+
+/* Header */
+header {
+  background: #5c1f2e;
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 1.8rem;
+  letter-spacing: 0.3em;
+  color: #e8b86d;
+}
+
+nav a {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  margin-left: 24px;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+}
+
+nav a:hover {
+  color: #e8b86d;
+}
+
+/* Main content */
+main {
+  padding: 80px 40px;
+  text-align: center;
+}
+
+main h1 {
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+  color: #5c1f2e;
+}
+
+main p {
+  font-size: 1rem;
+  color: #7a6050;
+}
