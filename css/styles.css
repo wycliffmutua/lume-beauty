@@ -1268,6 +1268,57 @@ footer p {
   margin-bottom: 0;
 }
 
+/* ── PAYMENT STYLES ── */
+.modal-dropdown {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #c8b5a0;
+  background: #1a1a1a;
+  color: #f0e6dc;
+  font-size: 0.95rem;
+  margin: 16px 0;
+  cursor: pointer;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #c8b5a0;
+  background: #1a1a1a;
+  color: #f0e6dc;
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+}
+
+.payment-section {
+  margin-top: 10px;
+  width: 100%;
+}
+
+.bank-details {
+  background: #1a1a1a;
+  border-radius: 10px;
+  padding: 14px;
+  margin: 12px 0;
+  border: 1px solid #333;
+}
+
+.bank-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 0.85rem;
+  border-bottom: 1px solid #2a2a2a;
+  color: #c8b5a0;
+}
+
+.bank-row:last-child { border-bottom: none; }
+.bank-row strong { color: #f0e6dc; 
+}
+
 /* M-Pesa pay button in cart */
 .mpesa-btn {
   width: 100%;
