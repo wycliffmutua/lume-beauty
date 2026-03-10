@@ -19,33 +19,42 @@ function showPaymentSelect(total) {
   const box = document.getElementById('modal-box');
 
   box.innerHTML = `
-    <div class="modal-icon">🛍️</div>
     <div class="modal-title">Choose Payment Method</div>
     <div class="modal-sub">Total: <strong>KSh ${total.toLocaleString()}</strong></div>
 
     <div class="payment-methods-grid">
 
       <div class="pay-option" onclick="selectPayment('mpesa', this)">
-        <img src="https://logosarchive.com/wp-content/uploads/2022/01/M-Pesa-logo.svg" alt="M-Pesa"
-          onerror="this.style.display='none';this.nextSibling.style.fontSize='2rem';this.nextSibling.textContent='📱'"/>
+        <svg viewBox="0 0 120 45" width="90" height="34">
+          <rect width="120" height="45" rx="7" fill="#00a550"/>
+          <text x="60" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="white" font-family="Arial, sans-serif">M-PESA</text>
+        </svg>
         <span>M-Pesa</span>
       </div>
 
       <div class="pay-option" onclick="selectPayment('card', this)">
-        <img src="https://www.svgrepo.com/show/328121/visa.svg" alt="Visa/Mastercard"
-          onerror="this.style.display='none';this.nextSibling.style.fontSize='2rem';this.nextSibling.textContent='💳'"/>
+        <svg viewBox="0 0 120 45" width="90" height="34">
+          <rect width="120" height="45" rx="7" fill="#1a1f71"/>
+          <text x="60" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="white" font-family="Arial, sans-serif" letter-spacing="2">VISA</text>
+        </svg>
         <span>Card</span>
       </div>
 
       <div class="pay-option" onclick="selectPayment('paypal', this)">
-        <img src="https://www.svgrepo.com/show/349447/paypal.svg" alt="PayPal"
-          onerror="this.style.display='none';this.nextSibling.style.fontSize='2rem';this.nextSibling.textContent='🅿️'"/>
+        <svg viewBox="0 0 120 45" width="90" height="34">
+          <rect width="120" height="45" rx="7" fill="#003087"/>
+          <text x="60" y="21" text-anchor="middle" font-size="11" font-weight="bold" fill="#009cde" font-family="Arial, sans-serif">Pay</text>
+          <text x="60" y="35" text-anchor="middle" font-size="11" font-weight="bold" fill="white" font-family="Arial, sans-serif">Pal</text>
+        </svg>
         <span>PayPal</span>
       </div>
 
       <div class="pay-option" onclick="selectPayment('bank', this)">
-        <img src="https://www.svgrepo.com/show/533408/bank.svg" alt="Bank Transfer"
-          onerror="this.style.display='none';this.nextSibling.style.fontSize='2rem';this.nextSibling.textContent='🏦'"/>
+        <svg viewBox="0 0 120 45" width="90" height="34">
+          <rect width="120" height="45" rx="7" fill="#d4251c"/>
+          <text x="60" y="22" text-anchor="middle" font-size="10" font-weight="bold" fill="white" font-family="Arial, sans-serif">EQUITY</text>
+          <text x="60" y="36" text-anchor="middle" font-size="9" fill="white" font-family="Arial, sans-serif">BANK</text>
+        </svg>
         <span>Bank Transfer</span>
       </div>
 
@@ -87,7 +96,7 @@ function mpesaForm(total) {
         maxlength="13"
       />
       <button class="modal-pay-btn" onclick="submitMpesa(${total})">
-        📱 Send M-Pesa Prompt →
+        Send M-Pesa Prompt →
       </button>
     </div>
   `;
@@ -98,14 +107,14 @@ function cardForm(total) {
   return `
     <div class="payment-section">
       <div class="modal-sub">Enter your card details below.</div>
-      <input class="modal-input" id="card-name"   type="text"     placeholder="Cardholder Name" />
-      <input class="modal-input" id="card-number" type="text"     placeholder="Card Number (16 digits)" maxlength="19" oninput="formatCardNumber(this)" />
+      <input class="modal-input" id="card-name"   type="text"       placeholder="Cardholder Name" />
+      <input class="modal-input" id="card-number" type="text"       placeholder="Card Number (16 digits)" maxlength="19" oninput="formatCardNumber(this)" />
       <div style="display:flex; gap:10px;">
-        <input class="modal-input" id="card-expiry" type="text"   placeholder="MM/YY" maxlength="5" style="flex:1" oninput="formatExpiry(this)" />
-        <input class="modal-input" id="card-cvv"    type="password" placeholder="CVV" maxlength="3" style="flex:1" />
+        <input class="modal-input" id="card-expiry" type="text"     placeholder="MM/YY" maxlength="5" style="flex:1" oninput="formatExpiry(this)" />
+        <input class="modal-input" id="card-cvv"    type="password" placeholder="CVV"   maxlength="3" style="flex:1" />
       </div>
       <button class="modal-pay-btn" onclick="submitCard(${total})">
-        💳 Pay KSh ${total.toLocaleString()} →
+        Pay KSh ${total.toLocaleString()} →
       </button>
     </div>
   `;
@@ -118,7 +127,7 @@ function paypalForm(total) {
       <div class="modal-sub">Enter your PayPal email to complete payment.</div>
       <input class="modal-input" id="paypal-email" type="email" placeholder="your@paypal.com" />
       <button class="modal-pay-btn" onclick="submitPaypal(${total})">
-        🅿️ Pay with PayPal →
+        Pay with PayPal →
       </button>
     </div>
   `;
@@ -138,7 +147,7 @@ function bankForm(total) {
         <div class="bank-row"><span>Reference</span><strong>${currentUser.email}</strong></div>
       </div>
       <button class="modal-pay-btn" onclick="submitBank(${total})">
-        🏦 I Have Transferred →
+        I Have Transferred →
       </button>
     </div>
   `;
@@ -190,10 +199,10 @@ function submitBank(total) {
 // ── PROCESSING SPINNER ────────────────────────────────
 function showProcessingStep(identifier, method) {
   const messages = {
-    mpesa:  `A prompt has been sent to <strong>${identifier}</strong>.<br/><br/>📱 Enter your <strong>M-Pesa PIN</strong> to complete payment.`,
-    card:   `Processing your card ending in <strong>${identifier}</strong>.<br/><br/>🔒 Securely verifying your details...`,
-    paypal: `Connecting to PayPal for <strong>${identifier}</strong>.<br/><br/>🅿️ Completing your payment...`,
-    bank:   `Confirming your bank transfer.<br/><br/>🏦 This may take 1–2 business days to reflect.`
+    mpesa:  `A prompt has been sent to <strong>${identifier}</strong>.<br/><br/>Enter your M-Pesa PIN to complete payment.`,
+    card:   `Processing your card ending in <strong>${identifier}</strong>.<br/><br/>Securely verifying your details...`,
+    paypal: `Connecting to PayPal for <strong>${identifier}</strong>.<br/><br/>Completing your payment...`,
+    bank:   `Confirming your bank transfer.<br/><br/>This may take 1–2 business days to reflect.`
   };
 
   document.getElementById('modal-box').innerHTML = `
