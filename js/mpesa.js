@@ -5,13 +5,11 @@
 // ═══════════════════════════════════════════
 
 // ── START PAYMENT ─────────────────────────────────────
-// Called when user clicks "Checkout" in cart drawer
 function startMpesa() {
   if (!cart || cart.length === 0) {
     showToast('Add some products to your cart first!');
     return;
   }
-
   const total = getCartTotal();
   showPaymentSelect(total);
 }
@@ -23,17 +21,35 @@ function showPaymentSelect(total) {
   box.innerHTML = `
     <div class="modal-icon">🛍️</div>
     <div class="modal-title">Choose Payment Method</div>
-    <div class="modal-sub">
-      Total: <strong>KSh ${total.toLocaleString()}</strong>
-    </div>
+    <div class="modal-sub">Total: <strong>KSh ${total.toLocaleString()}</strong></div>
 
-    <select class="modal-dropdown" id="payment-method" onchange="onPaymentChange()">
-      <option value="">-- Select a payment method --</option>
-      <option value="mpesa">📱 M-Pesa</option>
-      <option value="card">💳 Card (Visa / Mastercard)</option>
-      <option value="paypal">🅿️ PayPal</option>
-      <option value="bank">🏦 Bank Transfer</option>
-    </select>
+    <div class="payment-methods-grid">
+
+      <div class="pay-option" onclick="selectPayment('mpesa', this)">
+        <img src="https://logosarchive.com/wp-content/uploads/2022/01/M-Pesa-logo.svg" alt="M-Pesa"
+          onerror="this.style.display='none';this.nextSibling.style.fontSize='2rem';this.nextSibling.textContent='📱'"/>
+        <span>M-Pesa</span>
+      </div>
+
+      <div class="pay-option" onclick="selectPayment('card', this)">
+        <img src="https://www.svgrepo.com/show/328121/visa.svg" alt="Visa/Mastercard"
+          onerror="this.style.display='none';this.nextSibling.style.fontSize='2rem';this.nextSibling.textContent='💳'"/>
+        <span>Card</span>
+      </div>
+
+      <div class="pay-option" onclick="selectPayment('paypal', this)">
+        <img src="https://www.svgrepo.com/show/349447/paypal.svg" alt="PayPal"
+          onerror="this.style.display='none';this.nextSibling.style.fontSize='2rem';this.nextSibling.textContent='🅿️'"/>
+        <span>PayPal</span>
+      </div>
+
+      <div class="pay-option" onclick="selectPayment('bank', this)">
+        <img src="https://www.svgrepo.com/show/533408/bank.svg" alt="Bank Transfer"
+          onerror="this.style.display='none';this.nextSibling.style.fontSize='2rem';this.nextSibling.textContent='🏦'"/>
+        <span>Bank Transfer</span>
+      </div>
+
+    </div>
 
     <div id="payment-form-area"></div>
 
@@ -43,14 +59,15 @@ function showPaymentSelect(total) {
   openModal();
 }
 
-// ── ON DROPDOWN CHANGE ────────────────────────────────
-function onPaymentChange() {
-  const method = document.getElementById('payment-method').value;
-  const area   = document.getElementById('payment-form-area');
-  const total  = getCartTotal();
+// ── SELECT PAYMENT METHOD ─────────────────────────────
+function selectPayment(method, el) {
+  document.querySelectorAll('.pay-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+
+  const area  = document.getElementById('payment-form-area');
+  const total = getCartTotal();
 
   area.innerHTML = '';
-
   if (method === 'mpesa')  area.innerHTML = mpesaForm(total);
   if (method === 'card')   area.innerHTML = cardForm(total);
   if (method === 'paypal') area.innerHTML = paypalForm(total);
@@ -81,10 +98,10 @@ function cardForm(total) {
   return `
     <div class="payment-section">
       <div class="modal-sub">Enter your card details below.</div>
-      <input class="modal-input" id="card-name"   type="text"   placeholder="Cardholder Name" />
-      <input class="modal-input" id="card-number" type="text"   placeholder="Card Number (16 digits)" maxlength="19" oninput="formatCardNumber(this)" />
+      <input class="modal-input" id="card-name"   type="text"     placeholder="Cardholder Name" />
+      <input class="modal-input" id="card-number" type="text"     placeholder="Card Number (16 digits)" maxlength="19" oninput="formatCardNumber(this)" />
       <div style="display:flex; gap:10px;">
-        <input class="modal-input" id="card-expiry" type="text" placeholder="MM/YY" maxlength="5" style="flex:1" oninput="formatExpiry(this)" />
+        <input class="modal-input" id="card-expiry" type="text"   placeholder="MM/YY" maxlength="5" style="flex:1" oninput="formatExpiry(this)" />
         <input class="modal-input" id="card-cvv"    type="password" placeholder="CVV" maxlength="3" style="flex:1" />
       </div>
       <button class="modal-pay-btn" onclick="submitCard(${total})">
@@ -111,7 +128,7 @@ function paypalForm(total) {
 function bankForm(total) {
   return `
     <div class="payment-section">
-      <div class="modal-sub">Transfer to the account below and upload your slip.</div>
+      <div class="modal-sub">Transfer to the account below then click confirm.</div>
       <div class="bank-details">
         <div class="bank-row"><span>Bank</span><strong>Equity Bank Kenya</strong></div>
         <div class="bank-row"><span>Account Name</span><strong>LUMÉ Beauty Ltd</strong></div>
@@ -192,10 +209,10 @@ function showSuccessStep(total, identifier, method) {
   const txCode = 'QF' + Date.now().toString().slice(-8).toUpperCase();
 
   const methodLabels = {
-    mpesa:  '📱 M-Pesa',
-    card:   '💳 Card',
-    paypal: '🅿️ PayPal',
-    bank:   '🏦 Bank Transfer'
+    mpesa:  'M-Pesa',
+    card:   'Card',
+    paypal: 'PayPal',
+    bank:   'Bank Transfer'
   };
 
   document.getElementById('modal-box').innerHTML = `
@@ -205,9 +222,7 @@ function showSuccessStep(total, identifier, method) {
       <strong>KSh ${total.toLocaleString()}</strong> paid via ${methodLabels[method]}.<br/>
       Thank you, <strong>${currentUser.name}</strong>! Your order is confirmed. 🌸
     </div>
-    <div class="modal-txn-code">
-      Transaction Code: ${txCode}
-    </div>
+    <div class="modal-txn-code">Transaction Code: ${txCode}</div>
     <div style="font-size:0.78rem;color:#c8b5a0;margin-bottom:20px">
       Order details emailed to ${currentUser.email}.
     </div>

@@ -1554,3 +1554,45 @@ footer p {
   background: #2d7a50;
 }
 
+/* ── PAYMENT METHOD GRID ── */
+.payment-methods-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 16px 0;
+  width: 100%;
+}
+
+.pay-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 10px;
+  border-radius: 12px;
+  border: 2px solid #333;
+  background: #1a1a1a;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pay-option:hover {
+  border-color: #c8b5a0;
+}
+
+.pay-option.selected {
+  border-color: #d4a574;
+  background: #2a2218;
+}
+
+.pay-option img {
+  width: 70px;
+  height: 40px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.pay-option span {
+  font-size: 0.78rem;
+  color: #c8b5a0;
+}
