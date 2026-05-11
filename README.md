@@ -16,4 +16,4 @@ Built with: HTML, CSS, JavaScript → then Node.js + Supabase + M-Pesa.
 - [ ] **Stage 7** — Deploy live
 
 ## Built by
-Your name here — Nairobi, Kenya 🇰🇪
+Wycliff Mutua — Nairobi, Kenya 🇰🇪
