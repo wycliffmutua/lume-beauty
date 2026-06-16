@@ -1,3 +1,202 @@
+// ═══════════════════════════════════════════
+//  LUMÉ Beauty — mpesa.js
+// ═══════════════════════════════════════════
+
+// ── START PAYMENT ─────────────────────────────────────
+function startMpesa() {
+  if (!cart || cart.length === 0) {
+    showToast('Add some products to your cart first!');
+    return;
+  }
+  const total = getCartTotal();
+  showPaymentSelect(total);
+}
+
+// ── STEP 1: SELECT PAYMENT METHOD ────────────────────
+function showPaymentSelect(total) {
+  const box = document.getElementById('modal-box');
+
+  box.innerHTML = `
+    <div class="modal-title">Choose Payment Method</div>
+    <div class="modal-sub">Total: <strong>KSh ${total.toLocaleString()}</strong></div>
+
+    <div class="payment-methods-grid">
+
+      <div class="pay-option" onclick="selectPayment('mpesa', this)">
+        <svg viewBox="0 0 120 45" width="90" height="34">
+          <rect width="120" height="45" rx="7" fill="#00a550"/>
+          <text x="60" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="white" font-family="Arial, sans-serif">M-PESA</text>
+        </svg>
+        <span>M-Pesa</span>
+      </div>
+
+      <div class="pay-option" onclick="selectPayment('card', this)">
+        <svg viewBox="0 0 120 45" width="90" height="34">
+          <rect width="120" height="45" rx="7" fill="#1a1f71"/>
+          <text x="60" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="white" font-family="Arial, sans-serif" letter-spacing="2">VISA</text>
+        </svg>
+        <span>Card</span>
+      </div>
+
+      <div class="pay-option" onclick="selectPayment('paypal', this)">
+        <svg viewBox="0 0 120 45" width="90" height="34">
+          <rect width="120" height="45" rx="7" fill="#003087"/>
+          <text x="60" y="21" text-anchor="middle" font-size="11" font-weight="bold" fill="#009cde" font-family="Arial, sans-serif">Pay</text>
+          <text x="60" y="35" text-anchor="middle" font-size="11" font-weight="bold" fill="white" font-family="Arial, sans-serif">Pal</text>
+        </svg>
+        <span>PayPal</span>
+      </div>
+
+      <div class="pay-option" onclick="selectPayment('bank', this)">
+        <svg viewBox="0 0 120 45" width="90" height="34">
+          <rect width="120" height="45" rx="7" fill="#d4251c"/>
+          <text x="60" y="22" text-anchor="middle" font-size="10" font-weight="bold" fill="white" font-family="Arial, sans-serif">EQUITY</text>
+          <text x="60" y="36" text-anchor="middle" font-size="9" fill="white" font-family="Arial, sans-serif">BANK</text>
+        </svg>
+        <span>Bank Transfer</span>
+      </div>
+
+    </div>
+
+    <div id="payment-form-area"></div>
+    <button class="modal-cancel-btn" onclick="closeModal()">Cancel</button>
+  `;
+
+  openModal();
+}
+
+// ── SELECT PAYMENT METHOD ─────────────────────────────
+function selectPayment(method, el) {
+  document.querySelectorAll('.pay-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+
+  const area  = document.getElementById('payment-form-area');
+  const total = getCartTotal();
+
+  area.innerHTML = '';
+  if (method === 'mpesa')  area.innerHTML = mpesaForm(total);
+  if (method === 'card')   area.innerHTML = cardForm(total);
+  if (method === 'paypal') area.innerHTML = paypalForm(total);
+  if (method === 'bank')   area.innerHTML = bankForm(total);
+}
+
+// ── M-PESA FORM ───────────────────────────────────────
+function mpesaForm(total) {
+  return `
+    <div class="payment-section">
+      <div class="modal-sub">Enter your Safaricom number to receive an M-Pesa PIN prompt.</div>
+      <input class="modal-phone-input" id="mpesa-phone" type="tel" placeholder="e.g. 0712 345 678" maxlength="13"/>
+      <button class="modal-pay-btn" onclick="submitMpesa(${total})">Send M-Pesa Prompt →</button>
+    </div>
+  `;
+}
+
+// ── CARD FORM ─────────────────────────────────────────
+function cardForm(total) {
+  return `
+    <div class="payment-section">
+      <div class="modal-sub">Enter your card details below.</div>
+      <input class="modal-input" id="card-name"   type="text"     placeholder="Cardholder Name" />
+      <input class="modal-input" id="card-number" type="text"     placeholder="Card Number (16 digits)" maxlength="19" oninput="formatCardNumber(this)" />
+      <div style="display:flex; gap:10px;">
+        <input class="modal-input" id="card-expiry" type="text"     placeholder="MM/YY" maxlength="5" style="flex:1" oninput="formatExpiry(this)" />
+        <input class="modal-input" id="card-cvv"    type="password" placeholder="CVV"   maxlength="3" style="flex:1" />
+      </div>
+      <button class="modal-pay-btn" onclick="submitCard(${total})">Pay KSh ${total.toLocaleString()} →</button>
+    </div>
+  `;
+}
+
+// ── PAYPAL FORM ───────────────────────────────────────
+function paypalForm(total) {
+  return `
+    <div class="payment-section">
+      <div class="modal-sub">Enter your PayPal email to complete payment.</div>
+      <input class="modal-input" id="paypal-email" type="email" placeholder="your@paypal.com" />
+      <button class="modal-pay-btn" onclick="submitPaypal(${total})">Pay with PayPal →</button>
+    </div>
+  `;
+}
+
+// ── BANK TRANSFER FORM ────────────────────────────────
+function bankForm(total) {
+  return `
+    <div class="payment-section">
+      <div class="modal-sub">Transfer to the account below then click confirm.</div>
+      <div class="bank-details">
+        <div class="bank-row"><span>Bank</span><strong>Equity Bank Kenya</strong></div>
+        <div class="bank-row"><span>Account Name</span><strong>LUMÉ Beauty Ltd</strong></div>
+        <div class="bank-row"><span>Account No.</span><strong>0123456789</strong></div>
+        <div class="bank-row"><span>Branch</span><strong>Nairobi CBD</strong></div>
+        <div class="bank-row"><span>Amount</span><strong>KSh ${total.toLocaleString()}</strong></div>
+        <div class="bank-row"><span>Reference</span><strong>${currentUser.email}</strong></div>
+      </div>
+      <button class="modal-pay-btn" onclick="submitBank(${total})">I Have Transferred →</button>
+    </div>
+  `;
+}
+
+// ── SUBMIT: M-PESA ────────────────────────────────────
+async function submitMpesa(total) {
+  const rawPhone = document.getElementById('mpesa-phone').value.replace(/\s/g, '');
+  if (!rawPhone || rawPhone.replace(/\D/g, '').length < 9) {
+    showToast('Please enter a valid M-Pesa phone number');
+    return;
+  }
+  showProcessingStep(rawPhone, 'mpesa');
+  setTimeout(() => showSuccessStep(total, rawPhone, 'mpesa'), 4000);
+}
+
+// ── SUBMIT: CARD ──────────────────────────────────────
+function submitCard(total) {
+  const name   = document.getElementById('card-name').value.trim();
+  const number = document.getElementById('card-number').value.replace(/\s/g, '');
+  const expiry = document.getElementById('card-expiry').value.trim();
+  const cvv    = document.getElementById('card-cvv').value.trim();
+
+  if (!name || number.length < 16 || expiry.length < 5 || cvv.length < 3) {
+    showToast('Please fill in all card details correctly.');
+    return;
+  }
+  showProcessingStep(number.slice(-4), 'card');
+  setTimeout(() => showSuccessStep(total, number.slice(-4), 'card'), 3000);
+}
+
+// ── SUBMIT: PAYPAL ────────────────────────────────────
+function submitPaypal(total) {
+  const email = document.getElementById('paypal-email').value.trim();
+  if (!email || !email.includes('@')) {
+    showToast('Please enter a valid PayPal email.');
+    return;
+  }
+  showProcessingStep(email, 'paypal');
+  setTimeout(() => showSuccessStep(total, email, 'paypal'), 3000);
+}
+
+// ── SUBMIT: BANK ──────────────────────────────────────
+function submitBank(total) {
+  showProcessingStep('', 'bank');
+  setTimeout(() => showSuccessStep(total, '', 'bank'), 2000);
+}
+
+// ── PROCESSING SPINNER ────────────────────────────────
+function showProcessingStep(identifier, method) {
+  const messages = {
+    mpesa:  `A prompt has been sent to <strong>${identifier}</strong>.<br/><br/>Enter your M-Pesa PIN to complete payment.`,
+    card:   `Processing your card ending in <strong>${identifier}</strong>.<br/><br/>Securely verifying your details...`,
+    paypal: `Connecting to PayPal for <strong>${identifier}</strong>.<br/><br/>Completing your payment...`,
+    bank:   `Confirming your bank transfer.<br/><br/>This may take 1–2 business days to reflect.`
+  };
+
+  document.getElementById('modal-box').innerHTML = `
+    <div class="modal-spinner"></div>
+    <div class="modal-title">Processing Payment…</div>
+    <div class="modal-sub">${messages[method]}</div>
+    <p style="font-size:0.76rem;color:#c8b5a0;margin-top:16px">Do not close this window.</p>
+  `;
+}
+
+// ── SUCCESS SCREEN ────────────────────────────────────
 async function showSuccessStep(total, identifier, method) {
   const txCode = 'QF' + Date.now().toString().slice(-8).toUpperCase();
 
@@ -37,4 +236,35 @@ async function showSuccessStep(total, identifier, method) {
 
   cart = [];
   updateCartUI();
+}
+
+// ── FINISH ORDER ──────────────────────────────────────
+function finishOrder() {
+  closeModal();
+  document.getElementById('cart-drawer').classList.remove('open');
+  document.getElementById('shade').classList.remove('on');
+  renderProducts();
+  showToast('🎉 Order placed! Thank you for shopping at LUMÉ.', 'green');
+}
+
+// ── OPEN / CLOSE MODAL ────────────────────────────────
+function openModal() {
+  document.getElementById('modal-overlay').classList.add('on');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('on');
+}
+
+// ── CARD NUMBER FORMATTER ─────────────────────────────
+function formatCardNumber(input) {
+  let val = input.value.replace(/\D/g, '').slice(0, 16);
+  input.value = val.match(/.{1,4}/g)?.join(' ') || val;
+}
+
+// ── EXPIRY FORMATTER ──────────────────────────────────
+function formatExpiry(input) {
+  let val = input.value.replace(/\D/g, '').slice(0, 4);
+  if (val.length >= 3) val = val.slice(0, 2) + '/' + val.slice(2);
+  input.value = val;
 }
