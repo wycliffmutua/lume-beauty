@@ -1,0 +1,313 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LUMÉ — Luxury Beauty Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 1 — AUTH (Login / Signup)
+     This is the FIRST thing a visitor sees.
+     It covers the whole page.
+     main.js hides it after OTP is verified.
+════════════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-bg-orb orb1"></div>
+  <div class="auth-bg-orb orb2"></div>
+  <div class="auth-card">
+    <div class="auth-logo">LUMÉ</div>
+    <div class="auth-tagline">Luxury Beauty · Nairobi</div>
+
+    <!-- Toggle between Sign In and New Account -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="setAuthMode('login')">Sign In</button>
+      <button class="auth-tab" id="tab-signup" onclick="setAuthMode('signup')">New Account</button>
+    </div>
+
+    <!-- Name field — hidden until "New Account" is selected -->
+    <div id="field-name" class="auth-field" style="display:none">
+      <label>Full Name</label>
+      <input type="text" id="inp-name" placeholder="e.g. Amara Wanjiku" />
+    </div>
+
+    <div class="auth-field">
+      <label>Email Address</label>
+      <input type="email" id="inp-email" placeholder="you@example.com" />
+    </div>
+
+    <div class="auth-field">
+      <label>Password</label>
+      <input type="password" id="inp-pass" placeholder="Min. 6 characters" />
+    </div>
+
+    <p class="auth-err" id="auth-err"></p>
+
+    <button class="auth-submit-btn" onclick="doAuth()">
+      Send Verification Code <span>→</span>
+    </button>
+    <p class="auth-note">By continuing you agree to LUMÉ's Terms & Privacy Policy</p>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     SCREEN 2 — OTP VERIFICATION
+     Shown after auth form is submitted.
+     User types the 6-digit code from email.
+════════════════════════════════════════ -->
+<div id="otp-screen" style="display:none">
+  <div class="auth-bg-orb orb1"></div>
+  <div class="auth-bg-orb orb2"></div>
+  <div class="otp-card">
+    <div class="auth-logo">LUMÉ</div>
+    <div class="otp-emoji"></div>
+    <h2 class="otp-title">Check your email</h2>
+    <p class="otp-sub">We sent a 6-digit code to<br/><strong id="otp-email-label"></strong></p>
+
+    <!-- 6 boxes — JS auto-advances focus as you type -->
+    <div class="otp-boxes" id="otp-boxes">
+      <input class="otp-box" maxlength="1" inputmode="numeric" />
+      <input class="otp-box" maxlength="1" inputmode="numeric" />
+      <input class="otp-box" maxlength="1" inputmode="numeric" />
+      <input class="otp-box" maxlength="1" inputmode="numeric" />
+      <input class="otp-box" maxlength="1" inputmode="numeric" />
+      <input class="otp-box" maxlength="1" inputmode="numeric" />
+    </div>
+
+    <p class="otp-err" id="otp-err"></p>
+    <button class="auth-submit-btn" onclick="verifyOTP()">Verify & Enter Store →</button>
+
+    <div class="otp-resend-row">
+      Didn't get it?
+      <span onclick="resendOTP()">Resend code</span>
+      <span class="otp-timer" id="otp-timer"></span>
+    </div>
+
+    <!-- Demo box — remove this in production (real SendGrid will email the code) -->
+    <div class="demo-note">
+      🔐 Demo mode — your code: <strong id="demo-otp-display"></strong>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     SCREEN 3 — THE FULL STORE
+     Hidden until OTP is verified.
+     Everything below is the real shopping experience.
+════════════════════════════════════════ -->
+<div id="app" style="display:none">
+
+  <!-- HEADER -->
+  <header id="site-header">
+    <div class="header-inner">
+      <div class="logo">LUMÉ</div>
+      <nav>
+        <a href="#shop">Shop</a>
+        <a href="#offers">Offers</a>
+        <a href="#">About</a>
+      </nav>
+      <div class="header-right">
+        <!-- Logged-in user pill with their initial and name -->
+        <div class="user-pill">
+          <div class="user-av" id="user-av">A</div>
+          <span id="user-name-label">User</span>
+        </div>
+        <!-- Cart button — badge updates live as items are added -->
+        <button class="cart-btn" onclick="toggleCart()">
+          🛍 Cart <span class="cart-count" id="cart-count">0</span>
+        </button>
+        <button class="signout-btn" onclick="signOut()">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <p class="hero-eyebrow">✦ New Arrivals · 2026</p>
+      <h1 class="hero-title">Beauty that <em>moves</em><br/>with you.</h1>
+      <p class="hero-subtitle">Curated luxury cosmetics from the world's finest houses.<br/>Free delivery on orders over KSh 5,000.</p>
+      <a href="#shop" class="hero-btn">Shop Now →</a>
+    </div>
+    <div class="hero-image">
+      <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500&q=80" alt="Luxury cosmetics flatlay"/>
+    </div>
+  </section>
+
+  <!-- SCROLLING OFFERS TICKER -->
+  <div class="ticker" id="offers">
+    <div class="ticker-track">
+      <span>✦ Free Delivery on orders over KSh 5,000</span>
+      <span>✦ 25% OFF Fenty Beauty Collection</span>
+      <span>✦ Buy 2 Lip products, get 1 FREE</span>
+      <span>✦ Flash Sale — Smoky Eye Palette today only</span>
+      <span>✦ New members get 10% off first order</span>
+      <span>✦ Free Delivery on orders over KSh 5,000</span>
+      <span>✦ 25% OFF Fenty Beauty Collection</span>
+      <span>✦ Buy 2 Lip products, get 1 FREE</span>
+      <span>✦ Flash Sale — Smoky Eye Palette today only</span>
+      <span>✦ New members get 10% off first order</span>
+    </div>
+  </div>
+
+  <!-- SHOP SECTION -->
+  <section class="shop" id="shop">
+    <div class="shop-inner">
+
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+
+        <div class="sb-block">
+          <div class="sb-title">Category</div>
+          <div class="cat-list">
+            <div class="cat-item active" onclick="filterCat(this,'all')">All Products <span>16</span></div>
+            <div class="cat-item" onclick="filterCat(this,'lips')">Lips <span>4</span></div>
+            <div class="cat-item" onclick="filterCat(this,'face')">Face <span>5</span></div>
+            <div class="cat-item" onclick="filterCat(this,'eyes')">Eyes <span>3</span></div>
+            <div class="cat-item" onclick="filterCat(this,'skincare')">Skincare <span>4</span></div>
+          </div>
+        </div>
+
+        <div class="sb-block">
+          <div class="sb-title">Browse A–Z</div>
+          <div class="alpha-grid" id="alpha-grid"></div>
+        </div>
+
+        <div class="sb-block">
+          <div class="sb-title">Price Range</div>
+          <div class="price-options">
+            <label><input type="radio" name="price" value="all" checked onchange="renderProducts()"/> All</label>
+            <label><input type="radio" name="price" value="low" onchange="renderProducts()"/> Under KSh 2,500</label>
+            <label><input type="radio" name="price" value="mid" onchange="renderProducts()"/> KSh 2,500–5,000</label>
+            <label><input type="radio" name="price" value="high" onchange="renderProducts()"/> KSh 5,000+</label>
+          </div>
+        </div>
+
+        <div class="sb-block">
+          <label class="toggle-row">
+            <input type="checkbox" id="deals-toggle" onchange="renderProducts()"/>
+            <span class="toggle-track"></span>
+            <span>Deals only</span>
+          </label>
+        </div>
+
+      </aside>
+
+      <!-- MAIN PRODUCT AREA -->
+      <main class="main-area">
+        <div class="main-toolbar">
+          <div class="search-wrap">
+            <span>🔍</span>
+            <input type="text" id="search-input" placeholder="Search products, brands…" oninput="renderProducts()"/>
+          </div>
+          <select id="sort-select" onchange="renderProducts()">
+            <option value="default">Sort: Featured</option>
+            <option value="az">Name: A–Z</option>
+            <option value="price-low">Price: Low–High</option>
+            <option value="price-high">Price: High–Low</option>
+          </select>
+          <span class="result-count" id="result-count"></span>
+        </div>
+
+        <!-- Product cards rendered here by main.js -->
+        <div class="product-grid" id="product-grid"></div>
+      </main>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-logo">LUMÉ</div>
+      <p>Luxury beauty, delivered to your door. Nairobi, Kenya 🇰🇪</p>
+      <p class="footer-copy">© 2026 LUMÉ Beauty. All rights reserved.</p>
+    </div>
+  </footer>
+
+</div><!-- /#app -->
+
+
+<!-- ═══════════════════════════════════════
+     CART DRAWER
+     Slides in from the right.
+     Sits outside #app — overlays everything.
+════════════════════════════════════════ -->
+
+<!-- Dark overlay behind the drawer -->
+<div class="shade" id="shade" onclick="closeShade()"></div>
+
+<div class="cart-drawer" id="cart-drawer">
+  <div class="cart-drawer-head">
+    <h3>Your Cart 🛍</h3>
+    <button class="cart-drawer-close" onclick="toggleCart()">✕</button>
+  </div>
+
+  <!-- Cart items go here — updated by cart.js -->
+  <div class="cart-drawer-body" id="cart-body">
+    <div class="cart-empty">
+      <span>🛒</span>
+      Your cart is empty.<br/>Start adding some products!
+    </div>
+  </div>
+
+  <!-- Summary + Pay — hidden when cart is empty -->
+  <div class="cart-drawer-foot" id="cart-foot">
+    <div class="cart-summary">
+      <div class="summary-row">
+        <span>Subtotal</span><span id="sum-subtotal">KSh 0</span>
+      </div>
+      <div class="summary-row">
+        <span>Shipping</span><span id="sum-shipping">KSh 350</span>
+      </div>
+      <div class="summary-row summary-total">
+        <span>Total</span><span id="sum-total">KSh 0</span>
+      </div>
+    </div>
+    <button class="mpesa-btn" onclick="startMpesa()">
+      🛍️ Checkout
+    </button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     M-PESA MODAL
+     3 states injected by mpesa.js:
+       1. Enter phone number
+       2. Processing / spinner
+       3. Success + transaction code
+════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box" id="modal-box"></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     TOAST
+     Small popup message at bottom of screen.
+     e.g. "Added to cart!", "Code resent!"
+════════════════════════════════════════ -->
+<div class="toast" id="toast"></div>
+
+
+<!-- ── SCRIPTS — order matters! ──
+     main.js loads first (has PRODUCTS data + render functions)
+     auth.js handles login screens
+     cart.js handles cart state + UI
+     mpesa.js handles payment modal
+-->
+<script src="js/main.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/mpesa.js"></script>
+
+</body>
+</html>
